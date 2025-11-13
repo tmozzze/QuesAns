@@ -1,7 +1,25 @@
+# config\local.yaml
+
+# env
 env: "local" #local, dev, prod
 storage_path: ./storage/storage.db
+
+# Server
 http_server:
   address: "localhost:8080"
   timeout: 4s
   idle_timeout: 60s
+
+# Postgres
+postgres:
+  host: "${POSTGRES_HOST}"
+  port: "${POSTGRES_PORT}"
+  user: "${POSTGRES_USER}"
+  password: "${POSTGRES_PASSWORD}"
+  dbname: "${POSTGRES_DB}"
+  sslmode: "${POSTGRES_SSLMODE}"
+  tz: "${TZ}"
+  max_open_conns: 50
+  max_idle_conns: 10
+  conn_max_lifetime: 30m
   

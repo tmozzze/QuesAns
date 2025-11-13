@@ -13,12 +13,36 @@ type Config struct {
 	Env         string `yaml:"env" env-default:"local"`
 	StoragePath string `yaml:"storage_path" env-required:"true"`
 	HTTPServer  `yaml:"http_server"`
+	PostgresCfg
 }
 
 type HTTPServer struct {
 	Address     string        `yaml:"address" env-default:"localhost:8080"`
 	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
 	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
+}
+
+type PostgresCfg struct {
+	Host            string        `yaml:"host" env:"POSTGRES_HOST" env-default:"localhost"`
+	Port            string        `yaml:"port" env:"POSTGRES_PORT" env-default:"5432"`
+	User            string        `yaml:"user" env:"POSTGRES_USER" env-default:"qa_user"`
+	Password        string        `yaml:"password" env:"POSTGRES_PASSWORD" env-default:"qa_pass"`
+	DBName          string        `yaml:"dbname" env:"POSTGRES_DB" env-default:"qa_db"`
+	SSLMode         string        `yaml:"sslmode" env:"POSTGRES_SSLMODE" env-default:"disable"`
+	TZ              string        `yaml:"tz" env:"TZ" env-default:"Europe/Moscow"`
+	MaxOpenConns    int           `yaml:"max_open_conns" env-default:"50"`
+	MaxIdleConns    int           `yaml:"max_idle_conns" env-default:"10"`
+	ConnMaxLifetime time.Duration `yaml:"conn_max_lifetime" env-default:"30m"`
+}
+
+func (p PostgresCfg) DSN() string {
+	return "host=" + p.Host +
+		" user=" + p.User +
+		" password=" + p.Password +
+		" dbname=" + p.DBName +
+		" port=" + p.Port +
+		" sslmode=" + p.SSLMode +
+		" TimeZone=" + p.TZ
 }
 
 func MustLoad() *Config {

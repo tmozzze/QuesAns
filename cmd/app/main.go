@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/tmozzze/QuesAns/internal/config"
+	"github.com/tmozzze/QuesAns/internal/storage"
 )
 
 const (
@@ -14,14 +15,28 @@ const (
 )
 
 func main() {
+	// Load config
 	cfg := config.MustLoad()
 
+	// Setup logger
 	log := setupLogger(cfg.Env)
 
 	log.Info("starting QuesAns", slog.String("env", cfg.Env))
 	log.Debug("debug messages are enabled")
 
-	// TODO: init storage: postgres
+	// Init Postgres
+	storage, err := storage.New(cfg, log)
+	if err != nil {
+		log.Error("failed to init storage", slog.Any("err", err))
+		os.Exit(1)
+	}
+
+	// Database access
+	sqlDB, err := storage.Postgres.DB.DB()
+	if err != nil {
+		log.Error("failed to connect Postgres", slog.Any("err", err))
+	}
+	defer sqlDB.Close()
 
 	// TODO: init router: net/http
 
