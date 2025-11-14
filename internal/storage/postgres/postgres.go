@@ -16,11 +16,13 @@ type Storage struct {
 func New(cfg config.PostgresCfg, log *slog.Logger) (*Storage, error) {
 	const op = "storage.postgres.New"
 
-	log.Info("connecting to PostgreSQL",
+	pgLog := log.With(
+		slog.String("op", op),
 		slog.String("host", cfg.Host),
 		slog.String("db", cfg.DBName),
 		slog.String("user", cfg.User),
 	)
+	pgLog.Debug("connecting to PostgreSQL")
 
 	// DSN
 	dsn := cfg.DSN()
@@ -52,7 +54,7 @@ func New(cfg config.PostgresCfg, log *slog.Logger) (*Storage, error) {
 		return nil, fmt.Errorf("%s: ping failed: %w", op, err)
 	}
 
-	log.Info("connected to PostgreSQL successfully")
+	pgLog.Info("connected to PostgreSQL successfully")
 
 	return &Storage{DB: db}, nil
 

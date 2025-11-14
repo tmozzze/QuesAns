@@ -6,6 +6,7 @@ import (
 
 	"github.com/tmozzze/QuesAns/internal/config"
 	"github.com/tmozzze/QuesAns/internal/storage"
+	"github.com/tmozzze/QuesAns/internal/storage/migration"
 )
 
 const (
@@ -37,6 +38,12 @@ func main() {
 		log.Error("failed to connect Postgres", slog.Any("err", err))
 	}
 	defer sqlDB.Close()
+
+	// Migrations
+	if err := migration.ApplyMigrations(sqlDB, cfg, log); err != nil {
+		log.Error("failed to apply migrations", slog.Any("err", err))
+		os.Exit(1)
+	}
 
 	// TODO: init router: net/http
 

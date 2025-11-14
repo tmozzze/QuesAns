@@ -10,10 +10,12 @@ import (
 )
 
 type Config struct {
-	Env         string `yaml:"env" env-default:"local"`
-	StoragePath string `yaml:"storage_path" env-required:"true"`
-	HTTPServer  `yaml:"http_server"`
-	PostgresCfg
+	Env           string `yaml:"env" env-default:"local"`
+	StoragePath   string `yaml:"storage_path" env-required:"true"`
+	HTTPServer    `yaml:"http_server"`
+	PostgresCfg   `yaml:"postgres"`
+	MigrationsDir string `yaml:"migrations_dir" env-default:"./database/migrations"`
+	DBDialect     string `yaml:"db_dialect" env-default:"postgres"`
 }
 
 type HTTPServer struct {
