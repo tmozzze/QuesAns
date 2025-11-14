@@ -3,6 +3,10 @@
 # env
 env: "local" #local, dev, prod
 storage_path: ./storage/storage.db
+migrations_dir: "./database/migrations"
+
+# Goose
+db_dialect: "postgres"
 
 # Server
 http_server:
