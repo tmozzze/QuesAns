@@ -9,10 +9,22 @@ import (
 	"github.com/tmozzze/QuesAns/internal/config"
 )
 
-func ApplyMigrations(db *sql.DB, cfg *config.Config, log *slog.Logger) error {
-	const op = "storage.migrations.ApplyMigrations"
-	migrationsDir := cfg.MigrationsDir
-	dbDialect := cfg.DBDialect
+type GooseMigrator struct {
+	db  *sql.DB
+	cfg *config.Config
+	log *slog.Logger
+}
+
+func NewGooseMigrator(db *sql.DB, cfg *config.Config, log *slog.Logger) *GooseMigrator {
+	return &GooseMigrator{db: db, cfg: cfg, log: log}
+}
+
+func (m *GooseMigrator) ApplyMigrations() error {
+	const op = "storage.migrations.GooseMigrator.ApplyMigrations"
+	migrationsDir := m.cfg.MigrationsDir
+	dbDialect := m.cfg.DBDialect
+	db := m.db
+	log := m.log
 
 	mgLog := log.With(slog.String("op", op), slog.String("MigrationsDir", migrationsDir))
 	mgLog.Debug("start applying migrations")

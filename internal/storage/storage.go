@@ -5,11 +5,13 @@ import (
 	"log/slog"
 
 	"github.com/tmozzze/QuesAns/internal/config"
-	"github.com/tmozzze/QuesAns/internal/storage/postgres"
+	repoPg "github.com/tmozzze/QuesAns/internal/repository/postgres"
+	stPg "github.com/tmozzze/QuesAns/internal/storage/postgres"
 )
 
 type Storage struct {
-	Postgres *postgres.Storage
+	Postgres *stPg.Storage      // storage/postgres
+	Repos    *repoPg.Repository // repository/postgres
 }
 
 func New(cfg *config.Config, log *slog.Logger) (*Storage, error) {
@@ -17,16 +19,21 @@ func New(cfg *config.Config, log *slog.Logger) (*Storage, error) {
 	st := &Storage{}
 
 	stLog := log.With(slog.String("op", op), slog.String("StoragePath", cfg.StoragePath))
-	stLog.Debug("start init PostgreSQL")
+	stLog.Debug("start init PostgreSQL and Repos")
 
 	// Postgres init
-	pg, err := postgres.New(cfg.PostgresCfg, log)
+	pg, err := stPg.New(cfg.PostgresCfg, log)
 	if err != nil {
 		return nil, fmt.Errorf("%s: failed to init PostgreSQL: %w", op, err)
 	}
-	st.Postgres = pg
 
-	stLog.Debug("init PostgreSQL finished")
+	repos := repoPg.NewRepository(pg.DB)
+
+	// fill Storage struct
+	st.Postgres = pg
+	st.Repos = repos
+
+	stLog.Debug("init PostgreSQL and Repos finished")
 
 	return st, nil
 }
