@@ -20,6 +20,10 @@ G-push:
 G-add:
 	git add .
 
+# Run app
+go-run:
+	go run cmd/app/main.go
+
 # Run docker-compose
 run:
 	docker-compose up -d

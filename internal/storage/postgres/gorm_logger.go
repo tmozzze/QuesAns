@@ -1,36 +1,30 @@
 package postgres
 
 import (
+	"fmt"
 	"log/slog"
 	"time"
 
 	"gorm.io/gorm/logger"
 )
 
+type slogWriter struct {
+	log *slog.Logger
+}
+
+func (w *slogWriter) Printf(format string, args ...interface{}) {
+	w.log.Info(fmt.Sprintf(format, args...))
+}
+
 func NewGormLogger(log *slog.Logger) logger.Interface {
-	lvl := gormLogLevelFromSlog(log)
-	// GORM-logger
+	// GORM-logger with Writer
 	gormLogger := logger.New(
-		slog.NewLogLogger(log.Handler(), slog.LevelInfo),
+		&slogWriter{log: log},
 		logger.Config{
 			SlowThreshold: time.Second, // logging query longer than 1 sec
-			LogLevel:      lvl,
+			LogLevel:      logger.Info,
 			Colorful:      false,
 		},
 	)
 	return gormLogger
-}
-
-// gormLogLevelFromSlog — mapping slog level to log level
-func gormLogLevelFromSlog(log *slog.Logger) logger.LogLevel {
-	var lvl logger.LogLevel
-
-	switch {
-	case log.Handler().Enabled(nil, slog.LevelDebug):
-		lvl = logger.Info // SQL queries
-	default:
-		lvl = logger.Error // Error
-	}
-
-	return lvl
 }

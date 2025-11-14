@@ -19,7 +19,7 @@ func main() {
 	// Load config
 	cfg := config.MustLoad()
 
-	// Setup logger
+	// Init logger
 	log := setupLogger(cfg.Env)
 
 	log.Info("starting QuesAns", slog.String("env", cfg.Env))
@@ -40,10 +40,15 @@ func main() {
 	defer sqlDB.Close()
 
 	// Migrations
-	if err := migration.ApplyMigrations(sqlDB, cfg, log); err != nil {
+	migrator := migration.NewGooseMigrator(sqlDB, cfg, log)
+	if err := migrator.ApplyMigrations(); err != nil {
 		log.Error("failed to apply migrations", slog.Any("err", err))
 		os.Exit(1)
 	}
+
+	// Services
+	// questionSvc := service.NewQuestionService(storage.Repos.Question, log)
+	// answerSvc := service.NewAnswerService(storage.Repos.Answer, log)
 
 	// TODO: init router: net/http
 
